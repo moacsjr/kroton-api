@@ -6,12 +6,16 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Component;
 
 import br.com.kroton.api.tokens.data.Usuario;
 
 @Component
 public class PasswordFilter {
+	
+	private Log LOG = LogFactory.getLog(PasswordFilter.class);
 	
 	public List<Usuario> checkPassword(List<Usuario> usuarios, String senhaDescriptografada) throws NoSuchAlgorithmException{
 		

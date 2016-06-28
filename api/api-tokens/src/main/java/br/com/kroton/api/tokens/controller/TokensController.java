@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 import br.com.kroton.api.tokens.JwtUtil;
 import br.com.kroton.api.tokens.PasswordFilter;
 import br.com.kroton.api.tokens.dao.UsuarioDAO;
+import br.com.kroton.api.tokens.data.AutenticacaoRequest;
 import br.com.kroton.api.tokens.data.LoginRequest;
 import br.com.kroton.api.tokens.data.LoginResponse;
 import br.com.kroton.api.tokens.data.Usuario;
@@ -37,7 +38,7 @@ import br.com.kroton.api.tokens.data.Usuario;
 @RequestMapping(value="/api")
 public class TokensController {
 	
-	private Log log = LogFactory.getLog(TokensController.class);
+	private Log LOG = LogFactory.getLog(TokensController.class);
 	
 	@Autowired
 	private UsuarioDAO usuarioDao;
@@ -52,12 +53,23 @@ public class TokensController {
 	private String apiVersion;
 
 	@RequestMapping(path = "tokens", method = RequestMethod.POST, consumes={"application/json"})
-	public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) throws RestAPIException {
+	public ResponseEntity<LoginResponse> login(@RequestBody AutenticacaoRequest autenticacao) throws RestAPIException {
 
 		List<Usuario> usuariosAutenticados = new ArrayList<>();
+		
+		if(autenticacao.getAutenticacao() == null){
+			
+			ClientErrorInformation erro = new ClientErrorInformation(HttpStatus.BAD_REQUEST, "PDA-905", "INVALID CONTENT", "Invalid Request Data", null);
+			
+			throw new RestAPIException(erro);
+		}
+		
+		LoginRequest request = autenticacao.getAutenticacao();
 
 		if (!StringUtils.isEmpty(request.getCpf()) || !StringUtils.isEmpty(request.getEmail())) {
 
+			LOG.info(String.format("Processing login request for [CPF=%s] and [email=%s]", request.getCpf(), request.getEmail()));
+			
 			List<Usuario> usuarios = usuarioDao.find(request.getCpf(), request.getEmail());
 			
 			if(usuarios.size() == 0){
@@ -72,10 +84,12 @@ public class TokensController {
 
 				usuariosAutenticados = passwordFilter.checkPassword(usuarios, request.getSenha());
 				
+				LOG.info("Usuários autenticados: "+usuariosAutenticados.size());
+				
 
 			} catch (Exception e) {
 
-				log.error("Ocorreu um erro durante a validação da senha do usuário", e);
+				LOG.error("Ocorreu um erro durante a validação da senha do usuário", e);
 				
 				ClientErrorInformation erro = new ClientErrorInformation(HttpStatus.INTERNAL_SERVER_ERROR, "PDA-903", "FALHA NA VERIFICACAO DA SENHA", e.getMessage(), null);
 				
@@ -103,9 +117,12 @@ public class TokensController {
 				
 				tokenJwt = jwt.generateToken(ra , request.getCpf(), request.getEmail(), sistema, usuariosAutenticados);
 				
+				LOG.info(String.format("[RA=%S] [SISTEMA=%S] - JWT Token: %S", ra, sistema, tokenJwt));
+				
+				
 			} catch (ClassNotFoundException | IOException e1) {
 				
-				log.error("Erro ao tentar gerar o token jwt: ", e1);
+				LOG.error("Erro ao tentar gerar o token jwt: ", e1);
 				
 				ClientErrorInformation erro = new ClientErrorInformation(HttpStatus.INTERNAL_SERVER_ERROR, "PDA-904", "ERRO AO GERAR TOKEN", e1.getMessage(), null);
 				
@@ -127,7 +144,7 @@ public class TokensController {
 			return new ResponseEntity<LoginResponse>(new LoginResponse(tokenJwt, apiVersion), HttpStatus.OK);
 
 		}
-
+		LOG.info("Invalid Request ");
 		return new ResponseEntity<LoginResponse>(HttpStatus.BAD_REQUEST); //http 406
 
 	}
