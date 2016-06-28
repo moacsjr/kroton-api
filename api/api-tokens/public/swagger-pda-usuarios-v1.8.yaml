@@ -1,0 +1,211 @@
+swagger: '2.0'
+################################################################################
+#                              Informações da API                              #
+################################################################################
+info:
+  version: '1.0'
+  title: PDA - API REST para Autenticação de usuários
+  description: API responsável pela autenticação do usuário nos sistemas da Kroton
+basePath: /1.0
+schemes:
+  # tip: remove http to make production-grade
+  - http
+  - https
+# format of bodies a client can send (Content-Type)
+consumes:
+  - application/json
+# format of the responses to the client (Accepts)
+produces:
+  - application/json
+################################################################################
+#                                           Paths                              #
+################################################################################
+paths:
+  /usuarios:
+    post:
+      summary: Retorna informações do usuário autenticado nos sistemas da Kroton
+      description: Serviço responsável pela autenticação de usuários. Os parametro para autenticação são CPF ou E-Mail e Senha
+      tags:
+        - Usuarios
+      parameters:
+        - in: body
+          name: body
+          description: Informações necessarias para autenticação do usuário
+          required: true
+          schema:
+            $ref: "#/definitions/autenticacao"
+      responses:
+        '200':
+          description: JSON contendo os dados retornados pela API em caso de sucesso.
+          schema:
+            type: object
+            properties:
+              meta:
+                $ref: '#/definitions/meta'
+              data:
+                type: array
+                items:
+                  $ref: '#/definitions/usuario'
+                    
+        '400':
+          description: Bad Request
+          schema:
+            type: object
+            properties:
+              meta:
+                $ref: '#/definitions/meta'
+              errors:
+                $ref: '#/definitions/error'
+        '404':
+          description: Not Found
+          schema:
+            type: object
+            properties:
+              meta:
+                $ref: '#/definitions/meta'
+              errors:
+                $ref: '#/definitions/error'
+        '405':
+          description: Method  Not Allowed
+          schema:
+            type: object
+            properties:
+              meta:
+                $ref: '#/definitions/meta'
+              errors:
+                $ref: '#/definitions/error'
+        '406':
+          description: Not Acceptable
+          schema:
+            type: object
+            properties:
+              meta:
+                $ref: '#/definitions/meta'
+              errors:
+                $ref: '#/definitions/error'
+        '429':
+          description: Too Many Requests
+          schema:
+            type: object
+            properties:
+              meta:
+                $ref: '#/definitions/meta'
+              errors:
+                $ref: '#/definitions/error'
+        '500':
+          description: Erro inesperado no servidor
+          schema:
+            type: object
+            properties:
+              meta:
+                $ref: '#/definitions/meta'
+              errors:
+                $ref: '#/definitions/error'
+        '503':
+          description: Service unavailable
+          schema:
+            type: object
+            properties:
+              meta:
+                $ref: '#/definitions/meta'
+              errors:
+                $ref: '#/definitions/error'
+################################################################################
+#                                           Models                            #
+################################################################################
+definitions:
+  autenticacao:
+    type: object
+    properties:
+      cpf:
+        description: CPF do usuario para autenticação, obrigatório caso RA e E-Mail não sejam informados
+        type: string
+      email:
+        description: Email no Office 365 do usuário para autenticação,  obrigatório caso RA e CPF não sejam informados
+        type: string
+      senha:
+        description: senha do usuario para autenticação. Base64 Encode
+        type: string
+
+################################################################################
+#                 Representação de retorno no token JWT                        #     
+################################################################################
+  usuario:
+    description: Representação dos dados do Usuário, que serão retornados nos response da API
+    title: usuario
+    type: object
+    properties:
+      cpf:
+        type: string
+      email:
+        type: string
+      ra:
+        type: string
+      sistema:
+        type: string
+      periodoLetivo:
+        type: string
+      statusFinanceiro:
+        $ref: '#/definitions/dominio'
+      statusAcademico:
+        $ref: '#/definitions/dominio'
+      cursos:
+        type: array
+        items:
+          $ref: '#/definitions/curso'
+          
+  curso:
+    description: Representação dos dados de curso
+    type: object
+    properties:
+      id:
+        type: string
+      codigo:
+        type: string
+      sistema:
+        type: string
+      nome:
+        type: string
+      marca:
+        $ref: '#/definitions/dominio'
+      modalidade:
+        $ref: '#/definitions/dominio'
+  meta:
+    type: object
+    properties:
+      apiVersion:
+        type: string
+        description: Retorna sempre a versão major, minor e patch da API efetivamente consumida. O formato é “versão major;versão minor;patch version”.
+      transactionId:
+        type: string
+        description: Retorna o identificador de rastreabilidade de transação gerado pelo API
+        
+  error:
+    type: object
+    description: Objeto retornado na ocorrência de algum erro
+    properties:
+      code:
+        type: string
+        description: Codigo de negócio da aplicação
+      title:
+        type: string
+        description: Mensagem de erro resumida
+      detail:
+        type: string
+        description: Mensagem de erro detalhada
+      links:
+        type: object
+        description: Objeto do link para a página com a documentação
+          detalhada dos códigos e descrições dos erros.
+        properties:
+          rel:
+            type: string
+          href:
+            type: string
+  dominio:
+    type: object
+    properties:
+      codigo:
+        type: string
+      descricao:
+        type: string

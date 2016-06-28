@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper
+	namespace="br.com.kroton.api.alunos.dao.AlunoDAO">
+	
+	<select id="findAll" resultType="br.com.kroton.api.alunos.data.Aluno">
+		SELECT
+		  usr.CD_RA             AS "ra",
+		  usr.id_pessoa         AS "id",
+		  usr.CD_SISTEMA_ORIGEM AS "sistema",
+		  cur.SQ_CURSO          AS "id_curso",
+		  cur.CD_SISTEMA_ORIGEM AS "curso_sistema",
+		  cur.NM_CURSO          AS "curso_nome"
+		FROM na_tb_usuario usr
+		  JOIN na_tb_aluno alu ON alu.id_pessoa = usr.id_pessoa
+		  JOIN na_tb_pessoa pes ON pes.id_pessoa = pes.id_pessoa
+		  JOIN na_tb_curso cur ON cur.SQ_CURSO = cur.sq_curso
+		WHERE usr.cd_ra = '1269588001'
+		GROUP BY usr.CD_RA,
+		  usr.id_pessoa,
+		  usr.CD_SISTEMA_ORIGEM,
+		  cur.SQ_CURSO,
+		  cur.CD_SISTEMA_ORIGEM,
+		  cur.NM_CURSO
+	</select>
+	
+	<select id="findById" resultType="br.com.kroton.api.alunos.data.Aluno">
+		SELECT
+		  CD_RA    AS registroAluno,
+		  NR_CPF   AS cpf,
+		  NM_LOGIN AS login
+		FROM NA_TB_USUARIO
+		WHERE CD_RA = #{0, jdbcType=VARCHAR	}
+	</select>
+</mapper>
