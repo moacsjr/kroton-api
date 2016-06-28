@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper
 	namespace="br.com.kroton.api.tokens.dao.UsuarioDAO">
-	
+
 	<select id="find" resultType="br.com.kroton.api.tokens.data.Usuario">
 		SELECT
 		  usr.CD_RA                    AS ra,
@@ -19,8 +19,8 @@
 		  alu.CD_SITUACAO_ACADEMICA    AS statusAcademico
 		FROM na_tb_usuario usr
 		  JOIN na_tb_aluno alu ON alu.id_pessoa = usr.id_pessoa
-		  JOIN na_tb_pessoa pes ON pes.id_pessoa = pes.id_pessoa
-		  JOIN na_tb_curso cur ON cur.SQ_CURSO = cur.sq_curso
+		  JOIN na_tb_pessoa pes ON pes.id_pessoa = alu.id_pessoa
+		  JOIN na_tb_curso cur ON cur.SQ_CURSO = alu.sq_curso
 		<where>
 			<if test="param1 != null and param1 != ''">
 				AND usr.NR_CPF = #{param1, jdbcType=VARCHAR}
@@ -29,17 +29,5 @@
 				AND usr.DS_EMAIL_OFFICE365 = #{param2, jdbcType=VARCHAR}
 			</if>
 		</where>
-		GROUP BY usr.CD_RA,
-		  usr.NR_CPF,
-		  usr.id_pessoa,
-		  usr.CD_SISTEMA_ORIGEM,
-		  usr.DS_METODO_ACESSO,
-		  usr.DS_SENHA,
-		  cur.SQ_CURSO,
-		  cur.CD_SISTEMA_ORIGEM,
-		  cur.NM_CURSO,
-		  alu.CD_SITUACAO_FINANCEIRA,
-		  alu.DS_PERIODO_SIT_ACADEMICA,
-		  alu.CD_SITUACAO_ACADEMICA
 	</select>
 </mapper>

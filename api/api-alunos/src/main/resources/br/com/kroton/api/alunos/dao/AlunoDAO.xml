@@ -1,35 +1,125 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper
-	namespace="br.com.kroton.api.alunos.dao.AlunoDAO">
+<mapper namespace="br.com.kroton.api.alunos.dao.AlunoDAO">
+
+	<resultMap id="AlunoResultMap" type="br.com.kroton.api.alunos.data.Aluno">
+		<result property="ra" column="ra" />
+		<result property="sistema" column="sistema" />
+		<result property="descricaoPeriodoIngresso" column="descricaoPeriodoIngresso" />
+		<result property="periodoSituacaoAcademica" column="periodoSituacaoAcademica" />
+		<association property="unidade" resultMap="UnidadeResultMap" columnPrefix="aun_" />
+		<association property="curso" resultMap="CursoResultMap" columnPrefix="acu_" />
+		<association property="pessoa" resultMap="PessoaResultMap" columnPrefix="pes_" />
+	</resultMap>
 	
+	<resultMap type="br.com.kroton.api.alunos.data.Unidade" id="UnidadeResultMap">
+		<id property="id" column="id" />
+		<result property="codigo" column="codigo" />
+		<result property="sistema" column="sistema" />
+		<result property="nome" column="nome" />
+		<result property="razaoSocial" column="razaoSocial" />
+		<result property="tipo" column="tipo" />
+		<result property="codigoMec" column="codigoMec" />
+	</resultMap>
+	
+	<resultMap type="br.com.kroton.api.alunos.data.Historico" id="HistoricoResultMap">
+		<id property="usuarioCriacao" column="id" />
+		<result property="dataCriacao" column="dataCriacao" />
+		<result property="usuarioAtualizacao" column="usuarioAtualizacao" />
+		<result property="dataAutalizacao" column="dataAtualizacao" />
+	</resultMap>
+	
+	<resultMap type="br.com.kroton.api.alunos.data.Curso" id="CursoResultMap">
+		<id property="id" column="id" />
+		<result property="codigo" column="codigo" />
+		<result property="sistema" column="sistema" />
+		<result property="nome" column="nome" />
+		<result property="tipoPeriodoLetivos" column="tipoPeriodoLetivos" />
+		<result property="numeroPeriodosLetivos" column="numeroPeriodosLetivos" />
+		<result property="codigoMec" column="codigoMec" />
+		<association property="tipoCurso" resultMap="DominioResultMap" columnPrefix="ctpc_"/>
+		<association property="historico" resultMap="HistoricoResultMap" columnPrefix="chist_"/>
+	</resultMap>
+	
+	<resultMap type="br.com.kroton.api.alunos.data.Pessoa" id="PessoaResultMap">
+		<id property="id" column="id" />
+		<result property="sistema" column="sistema" />
+		<result property="nome" column="nome" />
+	</resultMap>
+	
+	<resultMap type="br.com.kroton.api.alunos.data.Dominio" id="DominioResultMap">
+		<id property="codigo" column="codigo" />
+		<result property="descricao" column="descricao" />
+	</resultMap>
+
+	
+	<sql id="selectAluno">
+	SELECT
+		Alu.Cd_Ra AS "ra",
+		Alu.Cd_Sistema_Origem AS "sistema",
+		Alu.Ds_Periodo_Ingresso AS "descricaoPeriodoIngresso",
+		Alu.Ds_Periodo_Sit_Academica AS "periodoSituacaoAcademica",
+		--unidade
+		Uni.Cd_Sistema_Origem AS "aun_sistema",
+		Uni.Nm_Unidade AS "aun_nome",
+		Uni.Nm_Razao_Social AS "aun_razaoSocial",
+		Uni.Cd_Marca AS "aun_tipo",
+		Uni.Cd_Mec AS "aun_codigoMec",
+		Uni.Sq_Unidade AS "aun_id",
+		Uni.Cd_Org_Academica AS "aun_codigo",
+		--aluno.unidade.historico
+		Uni.Nm_Usuario_Criacao AS "usuarioCriacao",
+		Uni.Dt_Criacao AS "dataCriacao",
+		Uni.Nm_Usuario_Atualizacao AS "usuarioAtualizacao",
+		Uni.Dt_Atualizacao AS "dataAtualizacao",
+		--aluno.alunosPeriodos
+		Alp.Cd_Status AS "codigoStatusAlunoPeriodo",
+		--aluno.alunosPeriodos.Unidade
+		Alpu.Sq_Unidade AS "cdUnidadeAlunoPeriodo",
+		Alpu.Nm_Unidade AS "nomeUnidadeAlunoPeriodo",
+		--curso
+		Cur.Sq_Curso AS "acu_id",
+		Cur.Cd_Sistema_Origem AS "acu_sistema",
+		Cur.Nm_Curso AS "nome",
+		Cur.Cd_Tipo_Periodo_Letivo AS "acu_tipoPeriodoLetivos",
+		Cur.Nr_Periodo_Letivo AS "acu_numeroPeriodosLetivos",
+		Cur.Cd_Mec AS "acu_codigoMec",
+		Cur.Cd_Tipo_Curso AS "ctpc_codigo",
+		Cur.Cd_Regime AS "acu_regime",
+		Cur.Cd_Modalidade AS "acu_modalidade",
+		--curso.historico:
+		Cur.Nm_Usuario_Criacao AS "chist_usuarioCriacao",
+		Cur.Dt_Criacao AS "chist_dataCriacao",
+		Cur.Nm_Usuario_Atualizacao AS "chist_usuarioAtualizacao",
+		Cur.Dt_Atualizacao AS "chist_dataAtualizacao",
+		--curso.unidade
+		Cuni.Sq_Unidade AS "curso_sq_unidade",
+		Cuni.Nm_Unidade AS "curso_nm_unidade"
+		FROM Na_Tb_Aluno Alu
+		left JOIN Na_Tb_Unidade Uni
+		ON Uni.Sq_Unidade = Alu.Sq_Unidade
+		left JOIN Na_Tb_Aluno_Periodo Alp
+		ON Alp.Id_Pessoa = Alu.Id_Pessoa
+		AND Alp.Sq_Unidade = Alu.Sq_Unidade
+		AND Alp.Cd_Sistema_Origem = Alu.Cd_Sistema_Origem
+		left JOIN Na_Tb_Unidade Alpu
+		ON Alpu.Sq_Unidade = Alp.Sq_Unidade
+		left JOIN Na_Tb_Curso Cur
+		ON Cur.Sq_Curso = Alu.Sq_Curso
+		left JOIN Na_Tb_Unidade Cuni
+		ON Cuni.Sq_Unidade = Cur.Sq_Unidade
+	
+	</sql>
+
 	<select id="findAll" resultType="br.com.kroton.api.alunos.data.Aluno">
-		SELECT
-		  usr.CD_RA             AS "ra",
-		  usr.id_pessoa         AS "id",
-		  usr.CD_SISTEMA_ORIGEM AS "sistema",
-		  cur.SQ_CURSO          AS "id_curso",
-		  cur.CD_SISTEMA_ORIGEM AS "curso_sistema",
-		  cur.NM_CURSO          AS "curso_nome"
-		FROM na_tb_usuario usr
-		  JOIN na_tb_aluno alu ON alu.id_pessoa = usr.id_pessoa
-		  JOIN na_tb_pessoa pes ON pes.id_pessoa = pes.id_pessoa
-		  JOIN na_tb_curso cur ON cur.SQ_CURSO = cur.sq_curso
-		WHERE usr.cd_ra = '1269588001'
-		GROUP BY usr.CD_RA,
-		  usr.id_pessoa,
-		  usr.CD_SISTEMA_ORIGEM,
-		  cur.SQ_CURSO,
-		  cur.CD_SISTEMA_ORIGEM,
-		  cur.NM_CURSO
+		<include refid="selectAluno"/>
 	</select>
-	
-	<select id="findById" resultType="br.com.kroton.api.alunos.data.Aluno">
-		SELECT
-		  CD_RA    AS registroAluno,
-		  NR_CPF   AS cpf,
-		  NM_LOGIN AS login
-		FROM NA_TB_USUARIO
-		WHERE CD_RA = #{0, jdbcType=VARCHAR	}
+
+	<select id="findById" resultMap="AlunoResultMap">
+		<include refid="selectAluno"/>
+		WHERE alu.CD_RA = #{param1, jdbcType=VARCHAR }
+		<if test="param2 != null and param2 != ''">
+				AND Alu.Cd_Sistema_Origem = #{param2, jdbcType=VARCHAR}
+			</if>
 	</select>
 </mapper>

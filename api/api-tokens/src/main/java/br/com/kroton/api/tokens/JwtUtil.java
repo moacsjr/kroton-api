@@ -93,7 +93,7 @@ public class JwtUtil {
      * @throws FileNotFoundException
      * @throws ClassNotFoundException
      */
-    public String generateToken(String ra, String cpf, String email, List<Usuario> usuariosAutenticados) throws FileNotFoundException, IOException, ClassNotFoundException {
+    public String generateToken(String ra, String cpf, String email, String sistema, List<Usuario> usuariosAutenticados) throws FileNotFoundException, IOException, ClassNotFoundException {
         Claims claims = Jwts.claims().setSubject(ra);
 
         ObjectMapper jsonMapper = new ObjectMapper();
@@ -101,6 +101,7 @@ public class JwtUtil {
         DateTime expiration = DateTime.now().plusHours(expirationInterval);
 
         claims.put("ra", ra);
+        claims.put("sistema", sistema);
         claims.put("cpf", cpf);
         claims.put("email", email);
         claims.put("usuarios", usuarios);

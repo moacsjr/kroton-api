@@ -19,11 +19,13 @@ public class PasswordFilter {
 		
 		for ( Usuario usuario:usuarios ) {
 			
-			String hashMD5 = gerarHashMD5(senhaDescriptografada);
+			String hashMD5 = gerarHashMD5(senhaDescriptografada.trim());
 
-	    	usuario.setAutenticado(usuario.getSenha().equalsIgnoreCase(hashMD5));
-
-	    	usuariosAutenticados.add(usuario);
+			if (usuario.getSenha().equalsIgnoreCase(hashMD5)) {
+				
+				usuariosAutenticados.add(usuario);
+				
+			}
     		
     	}
 

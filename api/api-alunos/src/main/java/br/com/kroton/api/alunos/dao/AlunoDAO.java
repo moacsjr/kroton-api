@@ -11,4 +11,6 @@ public interface AlunoDAO {
 	
 	List<Aluno> findAll();
 
+	Aluno findById(String rA, String sistema);
+
 }

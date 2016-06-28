@@ -1,7 +1,12 @@
 package br.com.kroton.api.alunos.data;
 
+import io.katharsis.resource.annotations.JsonApiId;
+import io.katharsis.resource.annotations.JsonApiResource;
+
+@JsonApiResource(type = "historicos")
 public class Pessoa {
 	
+	@JsonApiId
 	private Long id;
 	
 	private String nome;

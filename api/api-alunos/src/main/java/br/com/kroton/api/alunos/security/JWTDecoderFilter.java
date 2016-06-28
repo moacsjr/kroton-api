@@ -1,6 +1,8 @@
 package br.com.kroton.api.alunos.security;
 
 import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -38,9 +40,10 @@ public class JWTDecoderFilter implements Filter {
 		}
 		
 		String ra = getRa(httpRequest);
+		String sistema = getSistema(httpRequest);
 		
 		try {
-			jwt.parseToken(ra, authToken);
+			jwt.parseToken(ra, sistema, authToken);
 		} catch (ClassNotFoundException | AcessoNegadoException e) {
 			handleException(httpResponse, HttpServletResponse.SC_UNAUTHORIZED, "902", "ra-not-match", "Acesso ao Recurso foi Negado");
 			return;
@@ -83,9 +86,27 @@ public class JWTDecoderFilter implements Filter {
     private String getRa(HttpServletRequest request) {
     	String uri = request.getRequestURI();
     	
-    	String[] parts = uri.split("/");
+    	Pattern datePatt = Pattern.compile(".*\\/alunos\\/(\\d*)");
+    	Matcher m = datePatt.matcher(uri);
+    	String ra = null;
+		if (m.matches()) {
+    		ra   = m.group(1);
+    	}
     	
-    	return parts[parts.length-1];
+    	return ra;
+    }
+    
+    private String getSistema(HttpServletRequest request) {
+    	String uri = request.getQueryString();
+    	
+    	Pattern datePatt = Pattern.compile(".*\\[sistema\\]=(\\w*)");
+    	Matcher m = datePatt.matcher(uri.toLowerCase());
+    	String sistema = null;
+		if (m.matches()) {
+    		sistema   = m.group(1);
+    	}
+    	
+    	return sistema.toUpperCase();
     }
     
     private void handleException(HttpServletResponse response, int status, String id, String code, String title) {

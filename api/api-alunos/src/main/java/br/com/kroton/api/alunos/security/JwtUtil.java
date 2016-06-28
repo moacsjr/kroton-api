@@ -1,14 +1,18 @@
 package br.com.kroton.api.alunos.security;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -23,20 +27,22 @@ import io.jsonwebtoken.Jwts;
 @Component
 public class JwtUtil {
 
-    @Value("${jwt.secret}")
-    private String secret;
-    
+    Log log = LogFactory.getLog(JwtUtil.class);
+	
     @Value("${jwt.privatekey}")
 	private String privateKeyFileName;
 
     @Value("${jwt.publickey}")
 	private String publicKeyFileName;
+    
+    
 
     /**
      * Tries to parse specified String as a JWT token. If successful, returns User object with username, id and role prefilled (extracted from token).
      * If unsuccessful (token is invalid or not containing all required user properties), simply returns null.
      * 
      * @param token the JWT token to parse
+     * @param authToken 
      * @return the User object extracted from specified token or null if a token is invalid.
      * @throws IOException 
      * @throws JsonMappingException 
@@ -45,7 +51,7 @@ public class JwtUtil {
      * @throws ClassNotFoundException 
      * @throws JwtTokenValidationException 
      */
-    public List<Map<String,Object>> parseToken(String ra, String token) throws JsonParseException, JsonMappingException, IOException, AcessoNegadoException, ClassNotFoundException, JwtTokenValidationException {
+    public List<Map<String,Object>> parseToken(String ra, String sistema, String token) throws JsonParseException, JsonMappingException, IOException, AcessoNegadoException, ClassNotFoundException, JwtTokenValidationException {
         try {
         	
         	final PublicKey publicKey = getPublicKey();
@@ -60,8 +66,12 @@ public class JwtUtil {
                     List.class, HashMap.class));
             String subject = body.getSubject();
             
-            if(!subject.equals(ra)){
-            	throw new AcessoNegadoException("O usuário informado não tem permissão para acesar esse recurso.");
+            String valido = ( subject.equals(ra) || body.get("sistema").equals(sistema) ) ? "VALIDO" : "INVALIDO";
+            
+            //valida ra/sistema no token jwt com dados informados na uri
+            log.info(String.format("Verificando Token[RA=%s, Sistema=%s] %s", subject, body.get("sistema"), valido));
+            if(!subject.equals(ra) || !body.get("sistema").equals(sistema)){
+            	throw new AcessoNegadoException("O usuário/sistema informado não tem permissão para acesar esse recurso.");
             }
             
             return usuarios;
@@ -71,13 +81,48 @@ public class JwtUtil {
         }
     }
 
-	private PublicKey getPublicKey() throws IOException, FileNotFoundException, ClassNotFoundException {
-		ObjectInputStream inputStream = null;
-		
-		//decrypt using public key
-		inputStream = new ObjectInputStream(new FileInputStream(publicKeyFileName));
-		final PublicKey publicKey = (PublicKey) inputStream.readObject();
-		return publicKey;
-	}
+    private PublicKey getPublicKey() throws IOException, ClassNotFoundException {
+
+        // Decrypt using public key
+        final PublicKey publicKey = (PublicKey)getStreamKey(publicKeyFileName);
+        return publicKey;
+    }
+
+    private PrivateKey getPrivateKey() throws IOException, ClassNotFoundException {
+
+        // Encrypt the string using the private key
+        final PrivateKey privateKey = (PrivateKey)getStreamKey(privateKeyFileName);
+        return privateKey;
+    }
+
+    private Object getStreamKey(String key) throws IOException, ClassNotFoundException {
+
+        // objeto de retorno
+    	Object value = null;
+
+    	// stream de leitura para o object
+    	InputStream input = null;
+
+        // chave criada
+    	InputStream resource = getClass().getResourceAsStream(key);
+
+    	// realiza conversao para DataInputStream
+    	if (resource instanceof BufferedInputStream)
+    		input = new DataInputStream(resource);
+    	else
+    		input = resource;
+
+        // converte o inputstream para objectstream
+        ObjectInputStream stream = new ObjectInputStream(input);
+
+        // realiza a leitura do object
+        value = stream.readObject();
+
+        // fecha o stream
+        stream.close();
+
+        // retorno do objeto lido
+        return value;
+    }
 
 }
