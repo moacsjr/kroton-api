@@ -17,10 +17,10 @@
 		  alu.CD_SITUACAO_FINANCEIRA   AS statusFinanceiro,
 		  alu.DS_PERIODO_SIT_ACADEMICA AS periodoLetivo,
 		  alu.CD_SITUACAO_ACADEMICA    AS statusAcademico
-		FROM na_tb_usuario usr
-		  JOIN na_tb_aluno alu ON alu.id_pessoa = usr.id_pessoa
-		  JOIN na_tb_pessoa pes ON pes.id_pessoa = alu.id_pessoa
-		  JOIN na_tb_curso cur ON cur.SQ_CURSO = alu.sq_curso
+		FROM Nucleo_academico.na_tb_usuario usr
+		  JOIN Nucleo_academico.na_tb_aluno alu ON alu.id_pessoa = usr.id_pessoa
+		  JOIN Nucleo_academico.na_tb_pessoa pes ON pes.id_pessoa = alu.id_pessoa
+		  JOIN Nucleo_academico.na_tb_curso cur ON cur.SQ_CURSO = alu.sq_curso
 		<where>
 			<if test="param1 != null and param1 != ''">
 				AND usr.NR_CPF = #{param1, jdbcType=VARCHAR}
