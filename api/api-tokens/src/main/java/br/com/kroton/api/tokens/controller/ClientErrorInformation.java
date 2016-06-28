@@ -7,16 +7,16 @@ public class ClientErrorInformation {
 	private HttpStatus httpStatus;
 	private String code;
 	private String title;
-	private String detai;
+	private String detail;
 	private String links;
 	
 	
-	public ClientErrorInformation(HttpStatus httpStatus, String code, String title, String detai, String links) {
+	public ClientErrorInformation(HttpStatus httpStatus, String code, String title, String detail, String links) {
 		super();
 		this.httpStatus = httpStatus;
 		this.code = code;
 		this.title = title;
-		this.detai = detai;
+		this.detail = detail;
 		this.links = links;
 	}
 
@@ -51,13 +51,13 @@ public class ClientErrorInformation {
 	}
 
 
-	public String getDetai() {
-		return detai;
+	public String getDetail() {
+		return detail;
 	}
 
 
-	public void setDetai(String detai) {
-		this.detai = detai;
+	public void setDetail(String detai) {
+		this.detail = detai;
 	}
 
 
