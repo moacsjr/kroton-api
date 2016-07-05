@@ -7,6 +7,7 @@ import io.katharsis.resource.annotations.JsonApiResource;
 public class Historico {
 
 	@JsonApiId
+	private String id;
 	private String usuarioCriacao;
 	private String dataCriacao;
 	private String usuarioAtualizacao;
@@ -35,6 +36,10 @@ public class Historico {
 	}
 	public void setDataAtualizacao(String dataAtualizacao) {
 		this.dataAtualizacao = dataAtualizacao;
+	}
+	
+	public String getId(){
+		return "1";
 	}
 
 }

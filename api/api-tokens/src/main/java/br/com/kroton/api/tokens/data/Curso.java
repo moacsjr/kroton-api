@@ -1,6 +1,7 @@
 package br.com.kroton.api.tokens.data;
 
 public class Curso {
+	
 	private String id;
 
 	private String codigo;
@@ -8,6 +9,10 @@ public class Curso {
 	private String sistema;
 
 	private String nome;
+	
+	private Dominio marca;
+	
+	private Dominio modalidade;
 
 	public String getId() {
 		return id;
@@ -57,8 +62,6 @@ public class Curso {
 		this.modalidade = modalidade;
 	}
 
-	private Dominio marca;
-
-	private Dominio modalidade;
+	
 
 }

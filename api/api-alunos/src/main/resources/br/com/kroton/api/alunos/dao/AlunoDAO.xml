@@ -26,7 +26,7 @@
 		<id property="usuarioCriacao" column="id" />
 		<result property="dataCriacao" column="dataCriacao" />
 		<result property="usuarioAtualizacao" column="usuarioAtualizacao" />
-		<result property="dataAutalizacao" column="dataAtualizacao" />
+		<result property="dataAtualizacao" column="dataAtualizacao" />
 	</resultMap>
 	
 	<resultMap type="br.com.kroton.api.alunos.data.Curso" id="CursoResultMap">
@@ -37,78 +37,400 @@
 		<result property="tipoPeriodoLetivos" column="tipoPeriodoLetivos" />
 		<result property="numeroPeriodosLetivos" column="numeroPeriodosLetivos" />
 		<result property="codigoMec" column="codigoMec" />
+		<association property="marca" resultMap="DominioResultMap" column="cuni_marca_" />
+		<association property="modalidade" resultMap="DominioResultMap" column="cuni_mod_" />
 		<association property="tipoCurso" resultMap="DominioResultMap" columnPrefix="ctpc_"/>
+		<association property="unidade" resultMap="UnidadeResultMap" columnPrefix="cuni_"/>
 		<association property="historico" resultMap="HistoricoResultMap" columnPrefix="chist_"/>
 	</resultMap>
 	
 	<resultMap type="br.com.kroton.api.alunos.data.Pessoa" id="PessoaResultMap">
-		<id property="id" column="id" />
-		<result property="sistema" column="sistema" />
-		<result property="nome" column="nome" />
+	   <id property="id" column="id" />
+       <result property="sistemaOrigem" column="sistemaOrigem" />
+       <result property="nome" column="nome" /> 
+		
+		<association property="pessoaFisica" 	resultMap="PessoaFisicaResultMap" 	columnPrefix="pf_"/>
+		<association property="historico" 		resultMap="HistoricoResultMap" 		columnPrefix="hist_"/>
+		<collection property="necessidadesEspeciais" 	ofType="br.com.kroton.api.alunos.data.NecessidadeEspecial" 	resultMap="NecessidadeEspecialResultMap" 	columnPrefix="pne_"		fetchType="eager"/>
+		<collection property="pessoaEnderecos" 			ofType="br.com.kroton.api.alunos.data.Endereco" 	resultMap="EnderecoResultMap" 				columnPrefix="pend_" 	fetchType="eager"/>
+		<collection property="pessoaTelefones" 			ofType="br.com.kroton.api.alunos.data.Telefone" 	resultMap="TelefoneResultMap" 				columnPrefix="Fone_" 	fetchType="eager"/>
+		<collection property="pessoaDocumentos" 		ofType="br.com.kroton.api.alunos.data.Documento" 	resultMap="DocumentoResultMap" 				columnPrefix="Doc_" 	fetchType="eager"/>
+		<collection property="midiasSociais" 			ofType="br.com.kroton.api.alunos.data.MidiaSocial"		resultMap="MidiaSocialResultMap" 			columnPrefix="pmid_" 	fetchType="eager"/>
 	</resultMap>
 	
-	<resultMap type="br.com.kroton.api.alunos.data.Dominio" id="DominioResultMap">
-		<id property="codigo" column="codigo" />
-		<result property="descricao" column="descricao" />
+	<resultMap type="br.com.kroton.api.alunos.data.PessoaFisica" id="PessoaFisicaResultMap" >
+		<id property="id" 				column="id" />
+		<result property="sistema" 		column="sistema" />
+		<result property="cpf" 			column="cpf" />
+		<result property="dataNascimento" 			column="dataNascimento" />
+		<result property="dataConclusaoEnsMedio" 	column="dataConclusaoEnsMedio" />
+		<association property="historico" resultMap="HistoricoResultMap" columnPrefix="hist_"/>
+		<association property="raca" resultMap="DominioResultMap" columnPrefix="rac_"/>
+		<association property="genero" resultMap="DominioResultMap" columnPrefix="gen_"/>
+		<association property="estadoCivil" resultMap="DominioResultMap" columnPrefix="ecv_"/>
+		<association property="naturalidade" resultMap="CidadeResultMap" />
+		<association property="estadoNacionalidade" resultMap="EstadoResultMap" />
+		<association property="paisNacionalidade" resultMap="PaisResultMap" />
 	</resultMap>
+	
+	<resultMap type="br.com.kroton.api.alunos.data.NecessidadeEspecial" id="NecessidadeEspecialResultMap">
+		<id property="id" column="id" />
+		<result property="sistema" 		column="sistema"/>
+		<result property="detalhe" 	column="detalhe"/>
+		<association property="tipoPNE" resultMap="DominioResultMap" columnPrefix="tp_"/>
+		<association property="historico" resultMap="HistoricoResultMap" columnPrefix="hist_"/>
+	</resultMap>
+	
+	<resultMap type="br.com.kroton.api.alunos.data.Endereco" id="EnderecoResultMap">
+        <id property="id" 				column="id"/> 
+		<result property="sistema" 		column="sistema"/>
+		<result property="logradouro" 	column="logradouro"/>
+		<result property="bairro" 		column="bairro"/>
+		<result property="complemento" 	column="complemento"/>
+		<association property="cidade" 		resultMap="CidadeResultMap"/>
+		<association property="estado" 		resultMap="EstadoResultMap"/>
+		<association property="pais" 		resultMap="PaisResultMap"/>
+		<association property="tipoEndereco" resultMap="DominioResultMap" columnPrefix="tp_"/>
+		<association property="historico" resultMap="HistoricoResultMap" columnPrefix="hist_"/>
+	</resultMap>
+	
+	<resultMap type="br.com.kroton.api.alunos.data.Telefone" id="TelefoneResultMap" >
+		<id property="id" column="id" />
+		<result property="ddd" 			column="ddd" />
+		<result property="ddi" 			column="ddi" />
+		<result property="numero" 		column="numero" />
+		<result property="preferencia" 	column="preferencia" />
+		<result property="ramal" 		column="ramal" />
+		<result property="sistema" 		column="sistema" />
+		<association property="tipoTelefone" resultMap="DominioResultMap" columnPrefix="tp_"/>
+		<association property="historico" resultMap="HistoricoResultMap" columnPrefix="h_"/>
+	</resultMap>
+	
+	<resultMap type="br.com.kroton.api.alunos.data.Documento" id="DocumentoResultMap" >
+		<id property="id" column="id" />
+		<result property="orgaoEmissor" 	column="orgaoEmissor" />
+		<result property="sistema" 			column="sistema" />
+		<result property="dataExpedicao" 	column="dataExpedicao" />
+		<result property="dataExpiracao" 	column="dataExpiracao" />
+		<result property="cidadeEmissor" 	column="cidadeEmissor" />
+		<result property="estado" 			column="estado" />
+		<association property="tipoDocumento" resultMap="DominioResultMap" columnPrefix="tp_"/>
+		<association property="historico" resultMap="HistoricoResultMap" columnPrefix="h_"/>
+	</resultMap>
+	
+	<resultMap type="br.com.kroton.api.alunos.data.MidiaSocial" id="MidiaSocialResultMap" >
+		<id property="id" 				column="id" />
+		<result property="sistema" 		column="sistema" />
+		<result property="descricao" 	column="descricao" />
+		<association property="historico" resultMap="HistoricoResultMap" columnPrefix="h_"/>
+	</resultMap>
+	
+	
+	<resultMap type="br.com.kroton.api.alunos.data.AlunoPeriodo" id="AlunoPeriodoResultMap" >
+		<id property="id" column="id" />
+		<association property="status" resultMap="DominioResultMap" />
+		<association property="unidade" resultMap="UnidadeResultMap" />
+	</resultMap>
+	
+	<resultMap type="br.com.kroton.api.alunos.data.Dominio" id="DominioResultMap" >
+		<id property="codigo" 				column="codigo" />
+		<result property="descricao" 		column="descricao" />
+	</resultMap>
+	
+	<resultMap type="br.com.kroton.api.alunos.data.Cidade" id="CidadeResultMap" >
+		<id property="codigo" 				column="codigoCidade" />
+		<result property="descricao" 		column="nomeCidade" />
+	</resultMap>
+	
+	<resultMap type="br.com.kroton.api.alunos.data.Estado" id="EstadoResultMap" >
+		<id property="codigo" 				column="codigoEstado" />
+		<result property="descricao" 		column="nomeEstado" />
+	</resultMap>
+	
+	<resultMap type="br.com.kroton.api.alunos.data.Pais" id="PaisResultMap" >
+		<id property="codigo" 				column="codigoPais" />
+		<result property="descricao" 		column="nomePais" />
+	</resultMap>
+
+
 
 	
 	<sql id="selectAluno">
-	SELECT
-		Alu.Cd_Ra AS "ra",
-		Alu.Cd_Sistema_Origem AS "sistema",
-		Alu.Ds_Periodo_Ingresso AS "descricaoPeriodoIngresso",
-		Alu.Ds_Periodo_Sit_Academica AS "periodoSituacaoAcademica",
-		--unidade
-		Uni.Cd_Sistema_Origem AS "aun_sistema",
-		Uni.Nm_Unidade AS "aun_nome",
-		Uni.Nm_Razao_Social AS "aun_razaoSocial",
-		Uni.Cd_Marca AS "aun_tipo",
-		Uni.Cd_Mec AS "aun_codigoMec",
-		Uni.Sq_Unidade AS "aun_id",
-		Uni.Cd_Org_Academica AS "aun_codigo",
-		--aluno.unidade.historico
-		Uni.Nm_Usuario_Criacao AS "usuarioCriacao",
-		Uni.Dt_Criacao AS "dataCriacao",
-		Uni.Nm_Usuario_Atualizacao AS "usuarioAtualizacao",
-		Uni.Dt_Atualizacao AS "dataAtualizacao",
-		--aluno.alunosPeriodos
-		Alp.Cd_Status AS "codigoStatusAlunoPeriodo",
-		--aluno.alunosPeriodos.Unidade
-		Alpu.Sq_Unidade AS "cdUnidadeAlunoPeriodo",
-		Alpu.Nm_Unidade AS "nomeUnidadeAlunoPeriodo",
-		--curso
-		Cur.Sq_Curso AS "acu_id",
-		Cur.Cd_Sistema_Origem AS "acu_sistema",
-		Cur.Nm_Curso AS "nome",
-		Cur.Cd_Tipo_Periodo_Letivo AS "acu_tipoPeriodoLetivos",
-		Cur.Nr_Periodo_Letivo AS "acu_numeroPeriodosLetivos",
-		Cur.Cd_Mec AS "acu_codigoMec",
-		Cur.Cd_Tipo_Curso AS "ctpc_codigo",
-		Cur.Cd_Regime AS "acu_regime",
-		Cur.Cd_Modalidade AS "acu_modalidade",
-		--curso.historico:
-		Cur.Nm_Usuario_Criacao AS "chist_usuarioCriacao",
-		Cur.Dt_Criacao AS "chist_dataCriacao",
-		Cur.Nm_Usuario_Atualizacao AS "chist_usuarioAtualizacao",
-		Cur.Dt_Atualizacao AS "chist_dataAtualizacao",
+Select Alu.Cd_ra As "ra",
+       Alu.Cd_sistema_origem As "sistema",
+       Alu.Ds_periodo_ingresso As "descricaoPeriodoIngresso",
+       Alu.Ds_periodo_sit_academica As "periodoSituacaoAcademica",
+       
+       Uni.Cd_sistema_origem As "aun_sistema",
+       Uni.Nm_unidade As "aun_nome",
+       Uni.Nm_razao_social As "aun_razaoSocial",
+       Uni.Cd_marca As "aun_tipo",
+       Uni.Cd_mec As "aun_codigoMec",
+       Uni.Sq_unidade As "aun_id",
+       Uni.Cd_org_academica As "aun_codigo",
+
+       Uni.Nm_usuario_criacao As "usuarioCriacao",
+       Uni.Dt_criacao As "dataCriacao",
+       Uni.Nm_usuario_atualizacao As "usuarioAtualizacao",
+       Uni.Dt_atualizacao As "dataAtualizacao",
+
+       Alp.cd_ra||alp.cd_sistema_origem||alp.cd_periodo_letivo||alp.sq_unidade as alp_id,
+       Alp.Cd_status As "codigoStatusAlunoPeriodo",
+       Alpu.Sq_unidade As "cdUnidadeAlunoPeriodo",
+       Alpu.Nm_unidade As "nomeUnidadeAlunoPeriodo",
+
+       Cur.Sq_curso As "acu_id",
+       Cur.Cd_sistema_origem As "acu_sistema",
+       Cur.Nm_curso As "nome",
+       Cur.Cd_tipo_periodo_letivo As "acu_tipoPeriodoLetivos",
+       Cur.Nr_periodo_letivo As "acu_numeroPeriodosLetivos",
+       Cur.Cd_mec As "acu_codigoMec",
+       Cur.Cd_tipo_curso As "ctpc_codigo",
+       Cur.Cd_regime As "acu_regime",
+       Cur.Cd_modalidade As "acu_modalidade",
+
+		--curso.historico
+
+       Cur.Nm_usuario_criacao As "chist_usuarioCriacao",
+       Cur.Dt_criacao As "chist_dataCriacao",
+       Cur.Nm_usuario_atualizacao As "chist_usuarioAtualizacao",
+       Cur.Dt_atualizacao As "chist_dataAtualizacao",
+
 		--curso.unidade
-		Cuni.Sq_Unidade AS "curso_sq_unidade",
-		Cuni.Nm_Unidade AS "curso_nm_unidade"
-		FROM Na_Tb_Aluno Alu
-		left JOIN Na_Tb_Unidade Uni
-		ON Uni.Sq_Unidade = Alu.Sq_Unidade
-		left JOIN Na_Tb_Aluno_Periodo Alp
-		ON Alp.Id_Pessoa = Alu.Id_Pessoa
-		AND Alp.Sq_Unidade = Alu.Sq_Unidade
-		AND Alp.Cd_Sistema_Origem = Alu.Cd_Sistema_Origem
-		left JOIN Na_Tb_Unidade Alpu
-		ON Alpu.Sq_Unidade = Alp.Sq_Unidade
-		left JOIN Na_Tb_Curso Cur
-		ON Cur.Sq_Curso = Alu.Sq_Curso
-		left JOIN Na_Tb_Unidade Cuni
-		ON Cuni.Sq_Unidade = Cur.Sq_Unidade
-	
+
+       Cuni.Sq_unidade As "cuni_id",
+       Cuni.Nm_unidade As "cuni_nome",
+
+		--curso.marca
+		
+	   marca.cd_dominio as cuni_marca_codigo,
+	   marca.ds_dominio as cuni_marca_descricao,
+	   
+		--curso.modalidade
+	   
+	   modalidade.cd_dominio as cuni_modalidade_codigo,
+	   modalidade.ds_dominio as cuni_modalidade_descricao,
+
+	   --pessoa
+
+       Pes.Id_pessoa As "pes_id",
+       Pes.Cd_sistema_origem As "pes_sistemaOrigem",
+       Pes.Nm_pessoa As "pes_nome",
+       
+       --pessoa.historico
+       
+       pes.Nm_usuario_criacao As "pes_hist_usuarioCriacao",
+       pes.Dt_criacao As "pes_hist_dataCriacao",
+       pes.Nm_usuario_atualizacao As "pes_hist_usuarioAtualizacao",
+       pes.Dt_atualizacao As "pes_hist_dataAtualizacao",
+       
+       --pessoa.pessoaFisica
+       
+       Pf.Id_pessoa As "pes_pf_id",
+       Pf.Cd_sistema_origem As "pes_pf_sistemaOrigem",
+       Pf.Nr_cpf As "pes_pf_cpf",
+       Pf.Dt_nascimento As "pes_pf_dataNascimento",
+       Pf.Dt_conclusao_ens_medio As "pes_pf_dataConclusaoEnsMedio",
+       Pf.Cd_raca As "pes_pf_raca",
+       Pf.Cd_genero As "pes_pf_genero",
+       Pf.Cd_estado_civil As "pes_pf_estadoCivil",
+       Pf.Cd_pais_nacionalidade As "pes_pf_codigoPais",
+       pfPais.nm_pais as pes_pf_nomePais,
+       Pf.Cd_estado_naturalidade As "pes_pf_codigoEstado",
+       pfEst.nm_estado as pes_pf_nomeEstado,
+       Pf.Cd_naturalidade As "pes_pf_codigoCidade",
+       pfCid.nm_cidade as pes_pf_nomeCidade,
+       
+	   --pessoa.pessoaFisica.historico
+	   
+       Pf.Nm_usuario_criacao as pes_pf_hist_usuarioCriacao,
+       Pf.Dt_criacao As pes_pf_hist_dataCriacao,
+       Pf.Nm_usuario_atualizacao As pes_pf_hist_usuarioAtualizacao,
+       Pf.Dt_atualizacao As pes_pf_hist_dataAtualizacao,
+       
+       --pessoa.enderecos
+
+       Pend.Cd_sistema_origem||pend.id_pessoa||pend.cd_tipo_endereco||pend.sq_unidade as pes_pend_id,
+       Pend.Cd_sistema_origem As "pes_pend_sistema",
+       Pend.Nm_logradouro As pes_pend_logradouro,
+       Pend.Nm_bairro As pes_pend_bairro,
+       Pend.Nr_cep As pes_pend_cep,
+       Pend.Ds_complemento As pes_pend_complemento,
+       Pend.Cd_tipo_endereco As pes_pend_tipoendereco,
+       Pend.Cd_cidade As pes_pend_codigoCidade,
+       endCid.nm_cidade as pes_pend_nomeCidade,
+       Pend.Cd_estado As pes_pend_codigoestado,
+       endEst.nm_estado as pes_pend_nomeEstado,
+       Pend.Cd_pais As pes_pend_pais,
+       endPais.nm_pais as pes_pend_nomePais,
+       --pessoa.ederecos.historico
+       
+       Pend.Nm_usuario_criacao As pes_pend_h_usuarioCriacao,
+       Pend.Dt_criacao As pes_pend_h_dataCriacao,
+       Pend.Nm_usuario_atualizacao As pes_pend_h_usuarioAtualizacao,
+       Pend.Dt_atualizacao As pes_pend_h_dataAtualizacao,
+
+		--pessoa.telefones
+
+       Fone.id_pessoa||Fone.cd_sistema_origem||fone.nr_telefone as pes_fone_id,
+       Fone.cd_sistema_origem as pes_fone_sistema,
+       Fone.Nr_ddi As pes_fone_ddi,
+       Fone.Nr_ddd As pes_fone_ddd,
+       Fone.Nr_telefone As pes_fone_numero,
+       Fone.Nr_ramal as pes_fone_ramal,
+       Fone.In_preferencia as pes_fone_preferencia,
+       Fone.Cd_tipo_telefone as pes_fone_telefone,
+       
+       --pessoa.telefone.historico
+       
+       Fone.Nm_usuario_criacao As pes_fone_h_usuarioCriacao,
+       Fone.Dt_criacao As pes_fone_h_dataCriacao,
+       Fone.Nm_usuario_atualizacao As pes_fone_h_usuarioAtualizacao,
+       Fone.Dt_atualizacao As pes_fone_h_dataAtualizacao,
+
+		--pessoa.documentos
+
+	     Doc.id_pessoa||Doc.Cd_Sistema_Origem||Doc.sq_unidade||Doc.cd_tipo_documento||Doc.Nr_documento As pes_doc_id,
+       Doc.Cd_tipo_documento As pes_doc_sistema,
+       Doc.Nr_documento As pes_doc_numero,
+       Doc.Nm_orgao_emissor As pes_doc_orgaoEmissor,
+       Doc.Ds_zona As pes_doc_zona,
+       Doc.Ds_secao As pes_doc_secao,
+       Doc.Dt_expedicao As pes_doc_dataExpedicao,
+       Doc.Dt_expiracao As pes_doc_dataExpiracao,
+       Doc.Cd_tipo_documento As pes_doc_tipoDocumento,
+       Doc.Cd_cidade_emissor As pes_doc_cidadeEmissor,
+       Doc.Cd_estado_emissor As pes_doc_estado,
+       
+       --pessoa.documentos.historico
+       
+       Doc.Nm_usuario_criacao As pes_doc_h_usuariocriacao,
+       Doc.Dt_criacao As pes_doc_h_dataCriacao,
+       Doc.Nm_usuario_atualizacao As pes_doc_h_usuarioAtualizacao,
+       Doc.Dt_atualizacao As pes_doc_h_dataAtualizacao,
+
+		--pessoa.midiaSocial
+       pmid.id_pessoa||pmid.cd_sistema_origem||pmid.sq_unidade||pmid.cd_tipo_midia_social as pes_pmid_id,
+       Pmid.Cd_sistema_origem As pes_pmid_sistema,
+       Pmid.Ds_midia_social As pes_pmid_descricao,
+       
+       --pessoa midiaSocial.historico
+       
+       Pmid.Nm_usuario_criacao As pes_pmid_h_usuarioCriacao,
+       Pmid.Dt_criacao As pes_pmid_hdataCriacao,
+       Pmid.Nm_usuario_atualizacao As pes_pmid_husuarioAtualizacao,
+       Pmid.Dt_atualizacao As pes_pmid_h_dataAtualizacao,
+
+		--pessoa.necessidadesEspeciais
+       pne.id_pessoa||pne.cd_sistema_origem||pne.sq_unidade||pne.cd_tipo_pne as pes_pne_id,
+       pne.cd_sistema_origem as pes_pne_sistema,
+       pne.cd_tipo_pne as pes_pne_tipoPne,
+       pne.ds_detalhe as pes_pne_detalhe,
+       
+       --pessoa.necessidadesEspeciais
+       
+       pne.Nm_usuario_criacao As pes_pne_h_usuarioCriacao,
+       pne.Dt_criacao As pes_pne_h_dataCriacao,
+       pne.Nm_usuario_atualizacao As pes_pne_h_usuarioAtualizacao,
+       pne.dt_atualizacao As pes_pne_h_dataAtualizacao,
+       
+        --alunoPeriodo.status
+       NVL(statusPeriodo.cd_dominio,'CD_STATUS') as alp_dom_descricao,
+       NVL(statusPeriodo.nm_dominio,ALP.CD_STATUS) as alp_dom_codigo ,
+      
+       --pessoaFisica.genero
+       NVL(genero.cd_dominio,PF.CD_GENERO) as pes_pf_gen_codigo,
+       NVL(genero.nm_dominio,'CD_GENERO') as pes_pf_gen_descricao,
+      
+       --pessoaFisica.raca
+       NVL(raca.cd_dominio,PF.CD_RACA) as pes_pf_rac_codigo,
+       NVL(raca.nm_dominio,'CD_RACA') as pes_pf_rac_descricao,
+      
+       --pessoaFisica.estadoCivil
+       NVL(estadoCivil.cd_dominio,PF.CD_ESTADO_CIVIL) as pes_pf_ecv_codigo,
+       NVL(estadoCivil.nm_dominio,'CD_ESTADO_CIVIL') as pes_pf_ecv_descricao,
+      
+       --pne.tipoPne
+       NVL(tpPne.cd_dominio,PNE.CD_TIPO_PNE) as pes_pne_tp_codigo,
+       NVL(tpPne.nm_dominio,'CD_TIPO_PNE') as pes_pne_tp_descricao,
+      
+       --Doc.tipoDocumento
+       NVL(tpDoc.cd_dominio,DOC.CD_TIPO_DOCUMENTO) as pes_doc_tp_codigo,
+       NVL(tpDoc.nm_dominio,'CD_TIPO_DOCUMENTO') as pes_doc_tp_descricao,
+      
+       --Fone.tipoTelefone
+       NVL(tpFone.cd_dominio,FONE.CD_TIPO_TELEFONE) as pes_fone_tp_codigo,
+       NVL(tpFone.nm_dominio,'CD_TIPO_TELEFONE') as pes_fone_tp_descricao,
+      
+       --Endereco.tipoEndereco
+       NVL(tpEnd.cd_dominio,PEND.CD_TIPO_ENDERECO) as pes_end_tp_codigo,
+       NVL(tpEnd.nm_dominio,'CD_TIPO_ENDERECO') as pes_end_tp_descricao,
+      
+       --curso.tipoCurso
+       NVL(tpCur.cd_dominio,CUR.CD_TIPO_CURSO) as cur_tp_codigo,
+       NVL(tpCur.nm_dominio,'CD_TIPO_CURSO') as cur_tp_descricao,
+      
+       --curso.regime
+       NVL(regime.cd_dominio,CUR.CD_REGIME) as cur_reg_codigo,
+       NVL(regime.nm_dominio,'CD_REGIME') as cur_reg_descricao,
+      
+       --curso.modalidade
+       NVL(curMod.cd_dominio,CUR.CD_MODALIDADE) as cur_mod_codigo,
+       NVL(curMod.nm_dominio,'CD_MODALIDE') as cur_mod_descricao
+       
+  	   From Nucleo_academico.Na_tb_aluno Alu
+  	   
+       Left Join Nucleo_academico.Na_tb_unidade Uni On Uni.Sq_unidade = Alu.Sq_unidade
+       Left Join Nucleo_academico.Na_tb_aluno_periodo Alp On Alp.cd_ra = Alu.Id_pessoa        AND ALP.SQ_UNIDADE = ALU.SQ_UNIDADE
+       Left Join Nucleo_academico.Na_tb_unidade Alpu On Alpu.Sq_unidade = Alp.Sq_unidade    
+       Left Join Nucleo_academico.Na_tb_curso Cur On Cur.Sq_curso = Alu.Sq_curso              And CUR.SQ_UNIDADE  = ALU.SQ_UNIDADE
+       Left Join Nucleo_academico.Na_tb_unidade Cuni On Cuni.Sq_unidade = Cur.Sq_unidade    
+       Left Join Nucleo_academico.Na_tb_pessoa Pes On Pes.Id_pessoa = Alu.Id_pessoa           And PES.SQ_UNIDADE  = ALU.SQ_UNIDADE
+       Left Join Nucleo_academico.Na_tb_pessoa_fisica Pf On Pes.Id_pessoa = Pf.Id_pessoa      And PES.SQ_UNIDADE  = PF.SQ_UNIDADE
+       Left Join Nucleo_academico.Na_tb_pessoa_endereco Pend On Pend.Id_pessoa = Pf.Id_pessoa And PEND.SQ_UNIDADE = PF.SQ_UNIDADE
+       Left Join Nucleo_academico.Na_tb_pessoa_documento Doc On Doc.Id_pessoa = Pes.Id_pessoa And DOC.SQ_UNIDADE = PES.SQ_UNIDADE
+       Left Join Nucleo_academico.Na_tb_midia_social Pmid On Pmid.Id_pessoa = Pes.Id_pessoa   And PMID.SQ_UNIDADE = PES.SQ_UNIDADE
+       Left Join Nucleo_academico.Na_tb_pessoa_telefone Fone On Fone.Id_pessoa = Pf.Id_pessoa And FONE.SQ_UNIDADE = PF.SQ_UNIDADE
+       Left Join Nucleo_academico.Na_tb_pessoa_pne Pne On Pne.Id_pessoa = Pf.Id_pessoa        And PNE.SQ_UNIDADE  = PF.SQ_UNIDADE
+      
+      --curso.MARCA
+       left JOIN Nucleo_academico.Na_Tb_Dominio marca on Marca.Nm_Dominio='CD_MARCA' and Marca.Cd_Dominio = uni.Cd_Marca and marca.cd_sistema_origem = alu.cd_sistema_origem
+       
+	  	--curso.MODALIDADE
+       left JOIN Nucleo_academico.Na_Tb_Dominio modalidade on modalidade.Nm_Dominio='CD_MODALIDADE' and modalidade.Cd_Dominio = Cur.Cd_Modalidade and modalidade.cd_sistema_origem = Cur.cd_sistema_origem
+      --aluno.periodo.status
+       left JOIN Nucleo_academico.Na_Tb_Dominio StatusPeriodo on statusPeriodo.nm_dominio='CD_STATUS' and statusPeriodo.cd_dominio = alp.cd_status
+      --pessoaFisica.genero
+      left JOIN Nucleo_academico.Na_Tb_Dominio genero on genero.nm_dominio='CD_GENERO' and genero.cd_dominio = pf.cd_genero
+      --pessoaFisica.raca
+      left JOIN Nucleo_academico.Na_Tb_Dominio raca on raca.nm_dominio='CD_RACA' and raca.cd_dominio = pf.cd_raca
+      --pessoaFisica.estadoCivil
+      left JOIN Nucleo_academico.Na_Tb_Dominio estadoCivil on estadoCivil.nm_dominio='CD_ESTADO_CIVIL' and estadoCivil.cd_dominio = pf.cd_estado_civil
+      --PNE.tipoPNE
+      left JOIN Nucleo_academico.Na_Tb_Dominio tpPne on tpPne.nm_dominio='CD_TIPO_PNE' and tpPne.cd_dominio = pne.cd_tipo_pne
+      --pessoaDocumento.tipoDocumento
+      left JOIN Nucleo_academico.Na_Tb_Dominio tpDoc on tpDoc.nm_dominio='CD_TIPO_DOCUMENTO' and tpDoc.cd_dominio = Doc.cd_tipo_documento
+      --pessoaTelefone.tipoTelefone
+      left JOIN Nucleo_academico.Na_Tb_Dominio tpFone on tpFone.nm_dominio='CD_TIPO_TELEFONE' and tpFone.cd_dominio = fone.cd_tipo_telefone
+      --pessoaEndereco.tipoEndereco
+      left JOIN Nucleo_academico.Na_Tb_Dominio tpEnd on tpEnd.nm_dominio='CD_TIPO_ENDERECO' and tpEnd.cd_dominio = pEnd.cd_tipo_endereco
+      --cur.tipoCurso
+      left JOIN Nucleo_academico.Na_Tb_Dominio tpCur on tpCur.nm_dominio='CD_TIPO_CURSO' and tpCur.cd_dominio = Cur.cd_tipo_curso
+      --cur.regime
+      left JOIN Nucleo_academico.Na_Tb_Dominio regime on regime.nm_dominio='CD_REGIME' and regime.cd_dominio = Cur.cd_regime
+      --cur.modalidade
+      left JOIN Nucleo_academico.Na_Tb_Dominio curMod on tpCur.nm_dominio='CD_MODALIDADE' and tpCur.cd_dominio = Cur.cd_modalidade
+      
+    
+			--pf. cidade/estado/pais       
+		  left Join Nucleo_academico.Na_tb_cidade pfCid on pfCid.Cd_cidade = (Upper (pf.Cd_naturalidade || '|' || pf.Cd_estado_naturalidade || '|' || pf.cd_pais_nacionalidade))
+      left Join Nucleo_academico.Na_tb_estado pfEst on pfEst.Cd_estado = (Upper(pf.Cd_estado_naturalidade || '|' || pf.cd_pais_nacionalidade))
+			left Join Nucleo_academico.Na_tb_pais pfPais on pfPais.cd_pais = pf.cd_pais_nacionalidade
+      
+      --endereco. cidade/estado/pais
+      left Join Nucleo_academico.Na_tb_cidade endCid on endCid.Cd_cidade = (Upper (pend.Cd_Cidade || '|' || pend.Cd_estado || '|' || pend.cd_pais))
+      left Join Nucleo_academico.Na_tb_estado endEst on endEst.Cd_estado = (Upper(pend.Cd_estado || '|' || pend.cd_pais))
+			left Join Nucleo_academico.Na_tb_pais endPais on endPais.cd_pais = pend.cd_pais
 	</sql>
 
 	<select id="findAll" resultType="br.com.kroton.api.alunos.data.Aluno">

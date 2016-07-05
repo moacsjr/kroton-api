@@ -1,0 +1,479 @@
+swagger: '2.0'
+################################################################################
+#                              Informações da API                              #
+################################################################################
+info:
+  version: '1.0'
+  title: PDA - API REST para consulta de dados de aluno
+  description: API responsável pelo consumo de dados dos alunos no sistema PDA da Kroton
+basePath: /1.0
+host: kroton.com.br
+schemes:
+  - http
+  - https
+#format autentication JWT (JSON Web Token)
+securityDefinitions:
+  Bearer:
+    type: apiKey
+    name: Authorization
+    in: header
+# format of bodies a client can send (Content-Type)
+consumes:
+  - application/json
+# format of the responses to the client (Accepts)
+produces:
+  - application/json
+################################################################################
+#                                           Paths                              #
+################################################################################
+paths:
+  /alunos/{sistema}/{ra}:
+    get:
+      summary: Retorna informações do aluno, cadastrado no portal do aluno da Kroton
+      description: Serviço responsável pela consulta de dados do aluno. Os parametro para consulta são CPF, E-Mail ou RA.
+      tags:
+        - Alunos
+      security:
+        - Bearer: []
+      parameters:
+        - name: sistema
+          in: path
+          description: Parametro para consulta de aluno por sistema específico
+          required: true
+          type: string
+        - name: ra
+          in: path
+          description: Parametro para consulta de aluno por ra
+          required: true
+          type: string
+        - name: include
+          in: query
+          description: >-
+            --
+            Padrão Inclusion of Related Resources
+            --
+            Seleção de campos que serão retornados no response. Formato para envio dos include "include=enderecos,documentos,midiasSociais".
+          required: false
+          type: string
+      responses:
+        '200':
+          description: json contendo os dados retornados pela API em caso de sucesso.
+          schema:
+            type: object
+            properties:
+              meta:
+                $ref: '#/definitions/meta'
+              data:
+                $ref: '#/definitions/aluno'
+        '400':
+          description: Bad Request
+          schema:
+            type: object
+            properties:
+              meta:
+                $ref: '#/definitions/meta'
+              errors:
+                $ref: '#/definitions/error'
+        '401':
+          description: Unauthorized
+          schema:
+            type: object
+            properties:
+              meta:
+                $ref: '#/definitions/meta'
+              errors:
+                $ref: '#/definitions/error'
+        '404':
+          description: Not Found
+          schema:
+            type: object
+            properties:
+              meta:
+                $ref: '#/definitions/meta'
+              errors:
+                $ref: '#/definitions/error'
+        '405':
+          description: Method  Not Allowed
+          schema:
+            type: object
+            properties:
+              meta:
+                $ref: '#/definitions/meta'
+              errors:
+                $ref: '#/definitions/error'
+        '406':
+          description: Not Acceptable
+          schema:
+            type: object
+            properties:
+              meta:
+                $ref: '#/definitions/meta'
+              errors:
+                $ref: '#/definitions/error'
+        '429':
+          description: Too Many Requests
+          schema:
+            type: object
+            properties:
+              meta:
+                $ref: '#/definitions/meta'
+              errors:
+                $ref: '#/definitions/error'
+        '500':
+          description: Erro inesperado no servidor
+          schema:
+            type: object
+            properties:
+              meta:
+                $ref: '#/definitions/meta'
+              errors:
+                $ref: '#/definitions/error'
+        '503':
+          description: Service unavailable
+          schema:
+            type: object
+            properties:
+              meta:
+                $ref: '#/definitions/meta'
+              errors:
+                $ref: '#/definitions/error'
+                    
+################################################################################
+#                                           Models                            #
+################################################################################
+definitions:
+  aluno:
+    description: Representação dos dados do Aluno, que serão retornados nos response da API
+    title: aluno
+    type: object
+    properties:
+      ra:
+        type: string
+      sistema:
+        type: string
+      dataIngresso:
+        type: string
+      descricaoPeriodoIngresso:
+        type: string
+      periodoSituacaoAcademica:
+        type: string
+        description: Nacionalidade do Aluno
+      unidade:
+        $ref: '#/definitions/unidade'
+      alunoPeriodos:
+        type: array
+        items:
+          $ref: '#/definitions/alunoPeriodo'
+      curso:
+        $ref: '#/definitions/curso'
+      pessoa:
+        $ref: '#/definitions/pessoa'
+      historico:
+        $ref: '#/definitions/historico'
+        
+  unidade:
+    type: object
+    description: Objeto retornado para descrever os dados de unidades de ensino do aluno
+    properties:
+      id:
+        type: number
+      codigo:
+        type: string
+      sistema:
+        type: string
+      nome:
+        type: string
+      razaoSocial:
+        type: string
+      tipo:
+        type: string
+      codigoMec:
+        type: string
+      historico:
+        $ref: '#/definitions/historico'
+        
+  alunoPeriodo:
+    type: object
+    description: Objeto retornado para descrever os dados de períodos de ensino do aluno
+    properties:
+     
+      status:
+        $ref: '#/definitions/valorDominioRef'
+      unidade:
+        $ref: '#/definitions/unidade'
+     
+  pessoa:
+    type: object
+    description: Objeto retornado para descrever os dados de pessoa
+    properties:
+      id:
+        type: string
+      sistema:
+        type: string
+      nome:
+        type: string
+      pessoaFisica:
+        $ref: '#/definitions/pessoaFisica'
+      necessidadesEspeciais:
+        type: array
+        items:
+          $ref: '#/definitions/pne'
+      pessoaEnderecos:
+        type: array
+        items:
+          $ref: '#/definitions/endereco'
+      pessoaTelefones:
+        type: array
+        items:
+          $ref: '#/definitions/telefone'
+      pessoaDocumentos:
+        type: array
+        items:
+          $ref: '#/definitions/documento'
+      midiasSociais:
+        type: array
+        items:
+          $ref: '#/definitions/midiaSocial'
+      historico:
+        $ref: '#/definitions/historico'
+        
+  pessoaFisica:
+    type: object
+    description: Objeto retornado para descrever as informacoes de pessoa fisica
+    properties:
+      pessoaFisica:
+        type: string
+      id:
+        type: string
+      sistema:
+        type: string
+      cpf:
+        type: string
+      dataNascimento:
+        type: string
+      dataConclusaoEnsMedio:
+        type: string
+      raca:
+        $ref: '#/definitions/valorDominioRef'
+      genero:
+        $ref: '#/definitions/valorDominioRef'
+      estadoCivil:
+        $ref: '#/definitions/valorDominioRef'
+      naturalidade:
+        $ref: '#/definitions/cidade'
+      estadoNacionalidade:
+        $ref: '#/definitions/estado'
+      paisNacionalidade:
+        $ref: '#/definitions/pais'
+      historico:
+        $ref: '#/definitions/historico'
+        
+  pne:
+    type: object
+    description: Objeto retornado para descrever as informações das necessidades especiais da pessoa
+    properties:
+      sistema:
+        type: string
+      detalhe:
+        type: string
+      tipoPNE:
+        $ref: '#/definitions/valorDominioRef'
+      historico:
+        $ref: '#/definitions/historico'
+        
+  estado:
+    type: object
+    description: Objeto retornado para descrever as informações de estado
+    properties:
+      codigo:
+        type: string
+      descricao:
+        type: string
+        
+  cidade:
+    type: object
+    description: Objeto retornado para descrever as informações de cidade
+    properties:
+      codigo:
+        type: string
+      descricao:
+        type: string
+        
+  pais:
+    type: object
+    description: Objeto retornado para descrever as informacoes do pais da pessoa
+    properties:
+      codigo:
+        type: string
+      descricao:
+        type: string
+        
+  documento:
+    type: object
+    description: Objeto retornado para descrever os documentos do aluno
+    properties:
+      sistema:
+        type: string
+      numero:
+        type: string
+      orgaoEmissor:
+        type: string
+      zona:
+        type: string
+      secao:
+        type: string
+      dataExpedicao:
+        type: string
+      dataExpiracao:
+        type: string
+      tipoDocumento:
+        $ref: '#/definitions/valorDominioRef'
+      cidadeEmissor:
+        $ref: '#/definitions/cidade'
+      estado:
+        $ref: '#/definitions/estado'
+      historico:
+        $ref: '#/definitions/historico'
+        
+  midiaSocial:
+    type: object
+    description: Objeto retornado para descrever as midias sociais do aluno
+    properties:
+      sistema:
+        type: string
+      descricao:
+        type: string
+      historico:
+        $ref: '#/definitions/historico'
+        
+  telefone:
+    type: object
+    description: Objeto retornado para descrever os telefones do aluno
+    properties:
+      sistema:
+        type: string
+      ddi:
+        type: number
+      ddd:
+        type: number
+      numero:
+        type: string
+      ramal:
+        type: string
+      preferencia:
+        type: boolean
+      tipoTelefone:
+        $ref: '#/definitions/valorDominioRef'
+      historico:
+        $ref: '#/definitions/historico'
+        
+  endereco:
+    type: object
+    description: Objeto retornado para descrever o endereço do aluno
+    properties:
+      sistema:
+        type: string
+      logradouro:
+        type: string
+      bairro:
+        type: string
+      cep:
+        type: string
+      complemento:
+        type: string
+      tipoEndereco:
+        $ref: '#/definitions/valorDominioRef'
+      cidade:
+        $ref: '#/definitions/cidade'
+      estado:
+        $ref: '#/definitions/estado'
+      pais:
+        $ref: '#/definitions/pais'
+      historico:
+        $ref: '#/definitions/historico'
+        
+  curso:
+    type: object
+    description: Objeto retornado para descrever o curso do aluno
+    properties:
+      id:
+        type: number
+      codigo:
+        type: string
+      sistema:
+        type: string
+      nome:
+        type: string
+      tipoPeriodoLetivos:
+        type: string
+      numeroPeriodosLetivos:
+         type: number
+      codigoMec:
+        type: string
+      tipoCurso:
+        $ref: '#/definitions/valorDominioRef'
+      regime:
+        $ref: '#/definitions/valorDominioRef'
+      modalidade:
+        $ref: '#/definitions/valorDominioRef'
+      unidade:
+        $ref: '#/definitions/unidade'
+      historico:
+        $ref: '#/definitions/historico'
+        
+  error:
+    type: object
+    description: Objeto retornado na ocorrência de algum erro
+    properties:
+      code:
+        type: string
+        description: Codigo de negócio da aplicação
+      title:
+        type: string
+        description: Mensagem de erro resumida
+      detail:
+        type: string
+        description: Mensagem de erro detalhada
+      links:
+        type: object
+        description: Objeto do link para a página com a documentação
+          detalhada dos códigos e descrições dos erros.
+        properties:
+          rel:
+            type: string
+          href:
+            type: string
+            
+  meta:
+    type: object
+    properties:
+      apiVersion:
+        type: string
+        description: Retorna sempre a versão major, minor e patch da API efetivamente consumida. O formato é “versão major;versão minor;patch version”.
+      transactionId:
+        type: string
+        description: Retorna o identificador de rastreabilidade de transação gerado pelo API.
+  
+  valorDominioRef:
+    description: Representação do Dominio para os dados do Aluno, que serão retornados nos response da API
+    title: dominio
+    type: object
+    properties:
+      codigo:
+        type: string
+      descricao:
+        type: string
+        
+  historico:
+    description: Representação de dados para historico do registro
+    title: dominio
+    type: object
+    properties:
+      usuarioCriacao:
+        type: string
+      dataCriacao:
+        type: string
+      usuarioAtualizacao:
+        type: string
+      dataAtualizacao:
+        type: string

@@ -17,12 +17,12 @@ public class JWTTokenConfiguration {
 
 	    FilterRegistrationBean registration = new FilterRegistrationBean();
 	    registration.setFilter(jwtDecoderFilter(jwt));
-	    registration.addUrlPatterns("/*");
+	    registration.addUrlPatterns("/api/*");
 	    //registration.addInitParameter("paramName", "paramValue");
 	    registration.setName("jwtDecoderFilter");
 	    registration.setOrder(1);
 	    return registration;
-	} 
+	}
 
 	@Bean(name = "jwtDecoderFilter")
 	public Filter jwtDecoderFilter(JwtUtil jwt) {

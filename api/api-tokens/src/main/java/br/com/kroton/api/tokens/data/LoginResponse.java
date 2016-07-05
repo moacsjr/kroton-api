@@ -20,29 +20,23 @@ public class LoginResponse {
 	
 	private Map<String, String> meta = new HashMap<>();
 
-	private String jwt;
+	private Map<String, Object> data = new HashMap<>();;
 	
 	public LoginResponse() {
-		
 		
 	}
 
 	public LoginResponse(String tokenJwt) {
-		this.jwt = tokenJwt;
-		meta.put("transactionId", getUID());
+		
+		data.put("jwt", tokenJwt);
+		
+		meta.put("transactionId", APIUtils.getUID());
+		
 	}
 
 	public LoginResponse(String tokenJwt, String apiVersion) {
 		this(tokenJwt);
 		meta.put("apiVersion", apiVersion);
-	}
-
-	public String getJwt() {
-		return jwt;
-	}
-
-	public void setJwt(String jwt) {
-		this.jwt = jwt;
 	}
 
 	public Map<String, String> getMeta() {
@@ -53,17 +47,12 @@ public class LoginResponse {
 		this.meta = meta;
 	}
 	
-	private String getUID(){
-		MessageDigest messageDigest = null;
-		try {
-			messageDigest = MessageDigest.getInstance("MD5");
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-		}
-		messageDigest.update(new UID().toString().getBytes(Charset.forName("UTF8")));  
-	    final byte[] resultByte = messageDigest.digest();
-	    final String result = new String(Hex.encodeHex(resultByte));
-	    return result;
+	public Map<String, Object> getData() {
+		return data;
+	}
+
+	public void setData(Map<String, Object> data) {
+		this.data = data;
 	}
 
 }

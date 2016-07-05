@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -15,6 +16,9 @@ import org.springframework.context.annotation.Import;
 import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.spring.boot.KatharsisConfigV2;
@@ -26,6 +30,9 @@ import io.katharsis.spring.boot.KatharsisConfigV2;
 @SpringBootApplication
 @Import(KatharsisConfigV2.class)
 public class AlunoAPIApplication {
+	
+	@Value("${api.version}")
+	public static String apiVersion;
 	
     @Autowired
     private ResourceRegistry resourceRegistry;
@@ -46,6 +53,16 @@ public class AlunoAPIApplication {
 	public CountDownLatch closeLatch() {
 	    return new CountDownLatch(1);
 	}
+	
+	@Bean
+    public WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurerAdapter() {
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+            	registry.addMapping("/api/*").allowedOrigins("*");
+            }
+        };
+    }
 	
     public static void main(String[] args) throws Exception {
     	SpringApplicationBuilder app = new SpringApplicationBuilder(AlunoAPIApplication.class);

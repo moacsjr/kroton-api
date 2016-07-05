@@ -2,25 +2,79 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper
 	namespace="br.com.kroton.api.tokens.dao.UsuarioDAO">
+	
+	<resultMap type="br.com.kroton.api.tokens.data.Usuario" id="UsuarioResultMap">
+		<id property="ra" 						column="ra"/>
+		<result property="cpf" 					column="cpf"/>
+		<result property="metodoAcesso" 		column="metodoAcesso"/>
+		<result property="senha" 				column="senha"/>
+		<result property="sistema" 				column="sistema"/>
+		<result property="statusFinanceiro" 	column="statusFinanceiro"/>
+		<result property="periodoLetivo" 		column="periodoLetivo"/>
+		<result property="statusAcademico"	    column="statusAcademico"/>
+		<association property="cursos" resultMap="CursoResultMap" />
+	</resultMap>
+	
+	<resultMap type="br.com.kroton.api.tokens.data.Curso" id="CursoResultMap">
+		<id property="id" 					column="idCurso" />
+		<result property="codigo" 			column="codigoCurso" />
+		<result property="nome" 			column="nomeCurso" />
+		<result property="sistema" 			column="sistemaCurso" />
+		
+		<association property="marca" 			resultMap="DominioResultMap" columnPrefix="mrc_"/>
+		<association property="modalidade" 		resultMap="DominioResultMap" columnPrefix="mdl_"/>
+		 
+	</resultMap>
+	
+	<resultMap type="br.com.kroton.api.tokens.data.Dominio" id="DominioResultMap" >
+		<id property="codigo" 				column="codigo" />
+		<result property="descricao" 		column="descricao" />
+	</resultMap>
 
-	<select id="find" resultType="br.com.kroton.api.tokens.data.Usuario">
+	<select id="find" resultMap="UsuarioResultMap">
 		SELECT
+		DISTINCT
 		  usr.CD_RA                    AS ra,
 		  usr.NR_CPF                   AS cpf,
 		  usr.DS_METODO_ACESSO         AS metodoAcesso,
 		  usr.DS_SENHA                 AS senha,
 		  usr.id_pessoa,
-		  usr.CD_SISTEMA_ORIGEM        AS sistema,
-		  cur.SQ_CURSO,
-		  cur.CD_SISTEMA_ORIGEM,
-		  cur.NM_CURSO,
-		  alu.CD_SITUACAO_FINANCEIRA   AS statusFinanceiro,
-		  alu.DS_PERIODO_SIT_ACADEMICA AS periodoLetivo,
-		  alu.CD_SITUACAO_ACADEMICA    AS statusAcademico
-		FROM Nucleo_academico.na_tb_usuario usr
-		  JOIN Nucleo_academico.na_tb_aluno alu ON alu.id_pessoa = usr.id_pessoa
-		  JOIN Nucleo_academico.na_tb_pessoa pes ON pes.id_pessoa = alu.id_pessoa
-		  JOIN Nucleo_academico.na_tb_curso cur ON cur.SQ_CURSO = alu.sq_curso
+		  usr.CD_SISTEMA_ORIGEM        	AS sistema,
+		  cur.SQ_CURSO                 	AS idCurso,
+		  cur.CD_SISTEMA_ORIGEM        	AS codigoCurso,
+		  cur.NM_CURSO				   	As nomeCurso,
+	      marca.cd_dominio 				As mrc_codigo,
+	      marca.ds_dominio 				As mrc_descricao,
+	      modalidade.cd_dominio			As mdl_codigo,
+	      modalidade.ds_dominio 		As mdl_descricao,
+		  alu.CD_SITUACAO_FINANCEIRA   	AS statusFinanceiro,
+		  alu.DS_PERIODO_SIT_ACADEMICA 	AS periodoLetivo,
+		  alu.CD_SITUACAO_ACADEMICA    	AS statusAcademico
+	  
+	  FROM Nucleo_academico.na_tb_usuario usr
+      
+      JOIN Nucleo_academico.na_tb_aluno alu ON
+              alu.id_pessoa = usr.id_pessoa
+              and ALU.SQ_UNIDADE = USR.SQ_UNIDADE
+              
+      JOIN Nucleo_academico.na_tb_curso cur ON cur.SQ_CURSO = alu.sq_curso
+		  
+      JOIN Nucleo_academico.na_tb_pessoa pes ON
+              pes.id_pessoa = alu.id_pessoa
+			  and pes.SQ_UNIDADE = USR.SQ_UNIDADE
+      
+      JOIN Nucleo_academico.na_tb_unidade unidade on alu.sq_unidade = unidade.sq_unidade
+      
+      --MARCA
+      JOIN Nucleo_academico.Na_Tb_Dominio marca on Marca.Nm_Dominio='CD_MARCA' and Marca.Cd_Dominio = Unidade.Cd_Marca and marca.cd_sistema_origem = unidade.cd_sistema_origem
+	
+	  --MODALIDADE
+      JOIN Nucleo_academico.Na_Tb_Dominio modalidade on modalidade.Nm_Dominio='CD_MODALIDADE' and modalidade.Cd_Dominio = Cur.Cd_Modalidade and modalidade.cd_sistema_origem = Cur.cd_sistema_origem
+		  
+      JOIN NUCLEO_ACADEMICO.NA_TB_PESSOA_FISICA pfis ON 
+			  pfis.id_pessoa = pes.id_pessoa
+			  And pfis.SQ_UNIDADE = pes.SQ_UNIDADE
+			  And pfis.NR_CPF = usr.NR_CPF        
 		<where>
 			<if test="param1 != null and param1 != ''">
 				AND usr.NR_CPF = #{param1, jdbcType=VARCHAR}

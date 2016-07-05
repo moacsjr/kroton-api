@@ -1,5 +1,9 @@
 package br.com.kroton.api.tokens.data;
 
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class Usuario {
 	private String ra;
 	private String cpf;
@@ -7,16 +11,12 @@ public class Usuario {
 	private String periodoLetivo;
 	private String statusFinanceiro;
 	private String statusAcademico;
+	@JsonIgnore
 	private String metodoAcesso;
+	@JsonIgnore
 	private String senha;
-	private boolean autenticado;
+	private List<Curso> cursos;
 
-	public boolean isAutenticado() {
-		return autenticado;
-	}
-	public void setAutenticado(boolean autenticado) {
-		this.autenticado = autenticado;
-	}
 	public String getSenha() {
 		return senha;
 	}
@@ -64,5 +64,11 @@ public class Usuario {
 	}
 	public void setStatusAcademico(String statusAcademico) {
 		this.statusAcademico = statusAcademico;
+	}
+	public List<Curso> getCursos() {
+		return cursos;
+	}
+	public void setCursos(List<Curso> cursos) {
+		this.cursos = cursos;
 	}
 }

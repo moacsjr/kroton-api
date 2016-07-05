@@ -1,7 +1,12 @@
 package br.com.kroton.api.alunos.data;
 
+import io.katharsis.resource.annotations.JsonApiId;
+import io.katharsis.resource.annotations.JsonApiResource;
+
+@JsonApiResource(type = "dominio")
 public class Dominio {
 
+	@JsonApiId
 	private String codigo;
 	
 	private String descricao;

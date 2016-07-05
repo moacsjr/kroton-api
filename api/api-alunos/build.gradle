@@ -86,3 +86,15 @@ task buildDocker(type: Docker, dependsOn: build) {
     }
   }
 }
+
+task buildDockerHml(type: Docker, dependsOn: build) {
+  push = false
+  applicationName = jar.baseName
+  dockerfile = file('Dockerfile.hml')
+  doFirst {
+    copy {
+      from jar
+      into stageDir
+    }
+  }
+}

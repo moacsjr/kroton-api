@@ -29,7 +29,7 @@ public class Curso {
 	
 	private Dominio modalidade;
 	
-	private Dominio unidade;
+	private Unidade unidade;
 	
 	private Historico historico;
 
@@ -121,11 +121,11 @@ public class Curso {
 		this.regime = regime;
 	}
 
-	public Dominio getUnidade() {
+	public Unidade getUnidade() {
 		return unidade;
 	}
 
-	public void setUnidade(Dominio unidade) {
+	public void setUnidade(Unidade unidade) {
 		this.unidade = unidade;
 	}
 
